@@ -1,0 +1,144 @@
+= Inspector
+:experimental:
+
+The value inspector allows you to inspect and navigate the structure of data. While you can use
+it for pretty much anything (e.g. primitive data types, var, ref types) it's most
+useful when you're dealing with (deeply) nested collection-like data types (e.g. a vector of maps).
+
+== Usage
+
+Typing kbd:[C-c M-i] (`cider-inspect`) after some form in a source
+buffer or the REPL will show you the structure of the form's result
+in a new buffer. You can also use kbd:[C-u C-c M-i] to inspect
+the result of the current top-level form and kbd:[C-u C-u C-c M-i] to
+read an expression from the minibuffer and inspect its result.
+
+Alternatively, after a regular eval command, you can inspect the last
+evaluated value using `cider-inspect-last-result`. When an inspector
+buffer is visible in the background, it is automatically updated with
+the last result. This behavior can be controlled with the variable
+`cider-auto-inspect-after-eval`.
+
+TIP: The inspector can also be invoked in the middle of a debugging
+session, see xref:debugging/debugger.adoc[here] for more details.
+
+TIP: The current value of the debugger can be as sent as well to Clojure's
+`tap>` facility. This can be used to integrate CIDER with various external
+tools which render tapped values in a web browser, for example.
+
+You'll have access to additional keybindings in the inspector buffer
+(which is internally using `cider-inspector-mode`):
+
+|===
+| Keyboard shortcut | Command | Description
+
+| kbd:[Tab] and kbd:[Shift-Tab] / kbd:[n] and kbd:[p]
+| `cider-inspector-next-inspectable-object`
+| Navigate inspectable sub-objects
+
+| kbd:[f] and kbd:[b]
+| `forward-char`, `backward-char`
+| Navigate across characters on a line
+
+| kbd:[Return]
+| `cider-inspector-operate-on-point`
+| Inspect sub-objects
+
+| kbd:[l]
+| `cider-inspector-pop`
+| Pop to the parent object
+
+| kbd:[g]
+| `cider-inspector-refresh`
+| Refresh the inspector (e.g. if viewing an atom/ref/agent)
+
+| kbd:[SPC] or kbd:[Next] 
+| `cider-inspector-next-page`
+| Jump to next page in paginated view
+
+| kbd:[M-SPC] or kbd:[Prev]
+| `cider-inspector-prev-page`
+| Jump to previous page in paginated view
+
+| kbd:[s]
+| `cider-inspector-set-page-size`
+| Set a new page size in paginated view
+
+| kbd:[c]
+| `cider-inspector-set-max-coll-size`
+| Set a new maximum size above which nested collections are truncated
+
+| kbd:[C]
+| `cider-inspector-set-max-nested-depth
+| Set a new maximum nesting level above which the collections are truncated
+
+| kbd:[a]
+| `cider-inspector-set-max-atom-length`
+| Set a new maximum length above which nested atoms (non-collections) are truncated
+
+| kbd:[v]
+| `cider-inspector-toggle-view-mode`
+| Switch the rendering of the current value between `:normal` and `:object` view mode. In `:object` mode, any value is rendered as a plain Java object (by displaying its fields) instead of custom rendering rules that the Inspector applies in `:normal` mode.
+
+| kbd:[d]
+| `cider-inspector-def-current-val`
+| Defines a var in the REPL namespace with current inspector value. If you tend to always choose the same name(s), you may want to set the `cider-inspector-preferred-var-names` customization option.
+
+| kbd:[9]
+| `cider-inspector-previous-sibling`
+| Navigates to the previous sibling, within a sequential collection.
+
+| kbd:[0]
+| `cider-inspector-next-sibling`
+| Navigates to the next sibling, within a sequential collection.
+
+| kbd:[o]
+| `cider-inspector-open-thing-at-point`
+| Opens the url or file at point, if found.
+
+| kbd:[:]
+| `cider-inspect-expr-from-inspector`
+| Prompts for a new value, rendering it in the Inspector.
+
+| kbd:[t]
+| `cider-inspector-tap-current-val`
+| Performs `tap>` using the inspector's current value as it argument.
+
+| kbd:[1]
+| `cider-inspector-tap-at-point`
+| Performs `tap>` using the inspector's current sub-value (the one at POINT) as it argument.
+
+|===
+
+== Use `enrich-classpath` for best results
+
+If xref:config/basic_config.adoc#use-enrich-classpath[enrich-classpath] is activated, inspecting a Java class, method or field
+will richly display its Java doc comment documentation at the bottom of the inspector.  
+
+== Configuration
+
+By default, navigation skips over values like nils, numbers and
+keywords, which are not interesting to inspect. You can control this
+behavior using the variable `cider-inspector-skip-uninteresting`.
+
+The inspector buffer is automatically selected by default. You
+can disable the auto selection with the variable
+`cider-inspector-auto-select-buffer`.
+
+You can set the amount of data shown by default with the variables
+`cider-inspector-page-size`, `cider-inspector-max-coll-size`,
+`cider-inspector-max-nested-depth`, and `cider-inspector-max-atom-length`. The
+values can be adjusted for the current inspector buffer using the keybidings
+listed in the table above.
+
+If you enable `cider-inspector-fill-frame`, the inspector window fills its
+frame.
+
+When you define a var using kbd:[d], a var name can be suggested (default none).
+You can customize this value via the `cider-inspector-preferred-var-names`
+configuration option. Even after setting it, you are free to choose new names on
+the fly, as you type. Most recent names will take priority in subsequent usages.
+
+== Additional Resources
+
+* https://practicalli.github.io/spacemacs/evaluating-clojure/inspect/[Using CIDER's Inspector in Spacemacs]

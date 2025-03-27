@@ -1,0 +1,126 @@
+name: CI
+
+# This `on:` configuration avoids double-triggered jobs (one for `push`, one for `pull_request`).
+# Pull requests will still get jobs on every commit.
+# However you won't get jobs on branch pushes that lack an associated pull requests.
+# On the other hand, CircleCI jobs will still be triggered, which give a useful form of feedback.
+# Lastly, remember that we have a Makefile for local development - you are encouraged to use it before pushing commits.
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+
+permissions:
+  contents: read #  to fetch code (actions/checkout)
+
+jobs:
+  integration:
+    # Run integration tests for all OSs and EMACS_VERSIONs.
+    runs-on: ${{matrix.os}}
+
+    strategy:
+      matrix:
+        os: [macos-13, ubuntu-latest, windows-latest]
+        emacs_version: ['26.3', '27.2', '28.2', '29.3']
+        java_version: ['11', '17']
+        include:
+          # aarch64 (macos-13 is Intel)
+          - os: macos-latest
+            emacs_version: '29.3'
+            java_version: '11'
+          - os: macos-latest
+            emacs_version: '28.2'
+            java_version: '11'
+          - os: macos-latest
+            emacs_version: '29.3'
+            java_version: '17'
+          - os: macos-latest
+            emacs_version: '28.2'
+            java_version: '17'
+
+    steps:
+    - name: Set up Emacs
+      if: "!startsWith (matrix.os, 'windows')"
+      uses: purcell/setup-emacs@master
+      with:
+        version: ${{matrix.emacs_version}}
+
+    - name: Set up Emacs on Windows
+      if: startsWith (matrix.os, 'windows')
+      uses: jcs090218/setup-emacs-windows@master
+      with:
+        version: ${{matrix.emacs_version}}
+
+    - name: Install Eldev
+      if: "!startsWith (matrix.os, 'windows')"
+      run: curl -fsSL https://raw.github.com/doublep/eldev/master/webinstall/github-eldev | sh
+
+    - name: Install Eldev on MS-Windows
+      if: startsWith (matrix.os, 'windows')
+      run: |
+        # Remove expired DST Root CA X3 certificate. Workaround
+        # for https://debbugs.gnu.org/cgi/bugreport.cgi?bug=51038
+        # bug on Emacs 27.2.
+        gci cert:\LocalMachine\Root\DAC9024F54D8F6DF94935FB1732638CA6AD77C13
+        gci cert:\LocalMachine\Root\DAC9024F54D8F6DF94935FB1732638CA6AD77C13 | Remove-Item
+
+        curl.exe -fsSL https://raw.github.com/doublep/eldev/master/webinstall/github-eldev.bat | cmd /Q
+
+    - name: Install deps.clj on MS-Windows
+      if: startsWith (matrix.os, 'windows')
+      run: |
+        iwr -Uri https://raw.githubusercontent.com/borkdude/deps.clj/master/install.ps1 -outfile install_clojure.ps1
+        .\install_clojure.ps1
+        get-command deps.exe | split-path -parent | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+
+    - name: Check out the source code
+      uses: actions/checkout@v2
+
+    - name: Prepare java
+      uses: actions/setup-java@v3
+      with:
+        distribution: 'temurin'
+        # shadow requires java 11
+        java-version: ${{matrix.java_version}}
+
+    - name: Install Clojure Tools
+      # Use SHA until
+      # https://github.com/DeLaGuardo/setup-clojure/issues/78 is
+      # released
+      uses: DeLaGuardo/setup-clojure@1376ded6747c79645e82c856f16375af5f5de307
+      with:
+        bb: '1.0.165'
+        cli: '1.10.3.1013'
+        lein: '2.9.10'
+
+    - uses: actions/setup-node@v3
+      with:
+        node-version: 16
+    - run: npm install shadow-cljs@2.20.13 -g
+    - run: npm install nbb@1.1.152 -g
+
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+    - run: |
+        pip install basilisp==0.1.0b2
+
+    - name: Test integration
+      run: |
+        # The tests occasionally fail on macos&win in what is seems to
+        # be GH connectivity runner issues. We attempt to address this
+        # problem by rerunning the tests more than once.
+        eldev -p -dtTC test --test-type integration || eldev -p -dtTC test --test-type integration
+        
+    - name: Run tests that need enrich-classpath
+      if: "!startsWith(matrix.os, 'windows')"
+      run: |
+        cd dev; ../clojure.sh clojure -M:gen; cd -
+        wc -l test/File.edn
+        eldev -p -dtTC test --test-type enrich || eldev -p -dtTC test --test-type enrich
+
+    - name: Test clojure-ts-mode
+      if: startsWith (matrix.emacs_version, '29')
+      run: |
+        eldev -p -dtTC test --test-type clojure-ts-mode || eldev -p -dtTC test --test-type clojure-ts-mode

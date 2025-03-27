@@ -1,0 +1,218 @@
+= Code Completion
+:experimental:
+
+CIDER provides intelligent code completion for both source buffers (powered by
+`cider-mode`) and REPL buffers.
+
+NOTE: Internally CIDER leverages
+https://github.com/alexander-yakushev/compliment[compliment] for Clojure and
+https://github.com/clojure-emacs/clj-suitable[clj-suitable] for ClojureScript.
+
+Improvements to the two libraries automatically translate to improvements in CIDER.
+
+== Standard completion
+
+Out-of-the box CIDER uses the standard Emacs tooling for code completion. When you
+press kbd:[TAB] or kbd:[M-TAB] you'll get completion candidates in a
+dedicated buffer.
+
+image::code_completion.png[Code Completion]
+
+[NOTE]
+====
+There are two things to keep in mind about the standard completion:
+
+1. The default keybinding kbd:[M-TAB] is not usable in desktop environments that
+use it for switching between open applications.
+2. You have to configure kbd:[TAB] to do completion manually by adding this snippet your Emacs config:
+
+[source,lisp]
+----
+(setq tab-always-indent 'complete)
+----
+
+Normally kbd:[TAB] only indents, but now it will also do completion if the code
+is already properly indented.
+====
+
+== Completion styles
+
+CIDER defines a specialized completion category through the `cider-complete-at-point` function,
+added to `completion-at-point-functions`, establishing a dedicated completion category named
+`cider`.
+
+The CIDER completion at point function supports most completion styles, including
+`partial-completion`, `orderless` and `flex` (read more below).
+
+
+Sometimes the user may want to use a different completion style just for the CIDER
+complete at point function. That can be achieved by setting
+`completion-category-overrides`, overwriting the completion style of the CIDER
+complete at point function. The following snippet accomplishes that:
+
+[source,lisp]
+----
+(add-to-list 'completion-category-overrides '(cider (styles basic)))
+----
+
+This specifies that the `cider` completion category should employ the basic completion style by
+default.
+
+You can also enable the `flex` completion style by activating xref:usage/code_completion.adoc#fuzzy-candidate-matching[fuzzy candidate matching].
+
+== Auto-completion
+
+While the standard Emacs tooling works just fine, we suggest that
+CIDER users consider using
+http://company-mode.github.io/[`company-mode`] or https://github.com/minad/corfu[`corfu-mode`] instead. These
+can be used for auto-completion in both source code and REPL buffers, with the following advantages:
+
+* A nicer UI.
+* Integration with Clojure docstrings and Java doc comments.
+
+=== Configuration
+
+Both company-mode and corfu-mode are affected by the following CIDER configuration options:
+
+* `cider-docstring-max-lines` (default `20`) controls how many lines, at most, of this docstring
+will be included (in a popup or the echo area, depending on your setup) while offering completions.
+It's worth noting, for Java documentation, CIDER doesn't simply trim lines,
+but it looks at the structure and tries to find the largest combination of these that fits into `cider-docstring-max-lines`:
+ ** The entire comment body, followed by its "block tags" (Returns/Throws/Params information)
+ ** The first sentence of the comment, followed by the block tags
+ ** The block tags
+ ** The first sentence of the comment.
+
+=== company-mode installation
+
+To install `company-mode`:
+
+kbd:[M-x] `package-install` kbd:[RET] `company` kbd:[RET]
+
+After installation, you can turn on `company-mode` globally:
+
+[source,lisp]
+----
+(global-company-mode)
+----
+
+or through mode-specific hooks:
+
+[source,lisp]
+----
+(add-hook 'cider-repl-mode-hook #'company-mode)
+(add-hook 'cider-mode-hook #'company-mode)
+----
+
+When `company-mode` is enabled, it will receive completion information
+from `cider-complete-at-point` and requires no additional setup or plugins.
+
+If you'd prefer to trigger completions manually you can add this to your config:
+
+[source,lisp]
+----
+(setq company-idle-delay nil) ; never start completions automatically
+(global-set-key (kbd "M-TAB") #'company-complete) ; use M-TAB, a.k.a. C-M-i, as manual trigger
+----
+
+To make kbd:[TAB] complete, without losing the ability to manually indent,
+you can add this to your config:
+
+[source,lisp]
+----
+(global-set-key (kbd "TAB") #'company-indent-or-complete-common)
+----
+
+Company's documentation mechanism and CIDER's documentation facilities are integrated.
+
+While a completion is being offered to you, you can hit (kbd:[F1])
+(the default `company-show-doc-buffer` key binding) for displaying documentation
+and arglists under a temporary `*cider-doc*` buffer.
+
+In order for Company to always show docstrings and other metadata under a temporary `*cider-doc*` buffer,
+without needing to hit an extra key, please customize:
+
+[source,lisp]
+----
+;; (You may want to do this as a setq-local within a clojure-mode-hook instead)
+(custom-set-variables '(company-auto-update-doc t))
+----
+
+=== Fuzzy candidate matching
+
+By default, CIDER will use the completion styles defined in
+`completion-styles`, the defaults being `(basic partial-completion
+emacs22)` since Emacs 23. For a better description of how those
+completion styles operates, refer to the official Emacs manual on
+https://www.gnu.org/software/emacs/manual/html_node/emacs/Completion-Styles.html[how completion alternatives are chosen].
+
+CIDER provides a function to enable the `flex` completion style for CIDER-specific
+completions. If you wish to enable that, you can add this to your config:
+
+[source,lisp]
+----
+(cider-enable-flex-completion)
+----
+
+This adds the `flex` completion style, as introduced in Emacs 27.
+
+Now, `company-mode` (and other completion packages like `corfu`) will
+accept certain fuzziness when matching candidates against the
+prefix. For example, typing `mi` will show you `map-indexed` as one of
+the possible completion candidates and `cji` will complete to
+`clojure.java.io`. Different completion examples are shown
+https://github.com/alexander-yakushev/compliment/wiki/Examples[here].
+
+NOTE: `cider-company-enable-fuzzy-completion` (now deprecated) should be used for Emacs < 27. 
+
+=== Completion annotations
+
+Completion candidates will be annotated by default with an abbreviation
+corresponding to their type, and (contextually) their namespace. The function
+used to format the annotation can be configured by
+`cider-annotate-completion-function.` The abbreviations used are configured by
+`cider-completion-annotations-alist` and the context in which their namespace is
+included is configured by `cider-completion-annotations-include-ns.`
+
+image::completion-annotations.png[Completion Annotations]
+
+TIP: Completion annotations can be disabled by setting
+`cider-annotate-completion-candidates` to `nil`.
+
+=== Notes on class disambiguation
+
+Sometimes, the completion user experience may be interrupted by a `completing-read`
+that asks for the `Member in class`. This is used for better Java completions and documentation.
+
+However, if you are not interested in the current candidate, disambiguating it is of no use,
+and the prompt can be a nuisance.
+
+If you are using Company for completions and IDO for `completing-read`, you can cause the `<up>` and `<down>`
+keys to cancel the prompt by customizing:
+
+[source,lisp]
+----
+(advice-add 'cider-class-choice-completing-read
+            :around
+            (lambda (f a b)
+              (cider--with-temporary-ido-keys "<up>" "<down>"
+                (funcall f a b))))
+----
+
+=== Updating stale classes and methods cache
+
+Sometimes, the completion fails to recognize new classes that came with
+dependencies that were loaded dynamically after the REPL was started (e.g. via
+Boot). Executing `M-x cider-completion-flush-caches` (or going through the menu
+`+CIDER Interaction->Misc->Flush completion cache+`) forces the completion backend
+to re-read all classes it can find on the classpath.
+
+== Implementation Details
+
+NOTE: You don't really need to know any of this if you're using only `cider-jack-in`.
+
+The bulk of the code completion logic resides in `cider-nrepl` https://github.com/clojure-emacs/cider-nrepl/blob/master/src/cider/nrepl/middleware/complete.clj[completion middleware]. Internally it delegates to `compliment` for the Clojure completion and `clj-suitable` for the ClojureScript completion.
+
+Starting with nREPL 0.8, there's also a built-in `completions` nREPL op that CIDER will fallback to, in the absence of `cider-nrepl`. Its API is similar to that of the `complete` op in `cider-nrepl` and it can be configured to use different completion functions. The built-in op currently supports only Clojure. See the https://nrepl.org/nrepl/usage/misc.html#code-completion[nREPL docs] for more details.
+
+Basically, you'll get great code completion in the presence of `cider-nrepl` and basic completion otherwise.
