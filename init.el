@@ -167,4 +167,5 @@
 (global-set-key (kbd "M->") 'mc/mark-next-like-this)
 (global-set-key (kbd "M-<") 'mc/skip-to-next-like-this)
 
+;; ^J C-q j 替换空格！ =》 M-x  replace-string！
 
