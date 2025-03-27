@@ -163,6 +163,8 @@
    )
  )
 
+;; ==> windows is ctrl-> 111 
 (global-set-key (kbd "M->") 'mc/mark-next-like-this)
 (global-set-key (kbd "M-<") 'mc/skip-to-next-like-this)
+
 
