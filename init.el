@@ -1,18 +1,18 @@
 ;; Add local package directory to load path
-(add-to-list 'load-path "~/.emacs.d/packages/cider")
+;;(add-to-list 'load-path "~/.emacs.d/packages/cider")
 (add-to-list 'load-path "~/.emacs.d/packages/clojure-mode")
 (add-to-list 'load-path "~/.emacs.d/packages/company-mode")
-(add-to-list 'load-path "~/.emacs.d/packages/lispy")
+;;(add-to-list 'load-path "~/.emacs.d/packages/lispy")
 (add-to-list 'load-path "~/.emacs.d/packages/monokai-emacs")
 (add-to-list 'load-path "~/.emacs.d/packages/multiple-cursors.el")
 (add-to-list 'load-path "~/.emacs.d/packages/projectile")
 (add-to-list 'load-path "~/.emacs.d/packages/yasnippet")
 
 ;; Load packages
-(load "cider")
+;;(load "cider")
 (load "clojure-mode")
 (load "company")
-(load "lispy")
+;;(load "lispy")
 (load "monokai-theme")
 (load "multiple-cursors")
 (load "projectile")
@@ -30,9 +30,6 @@
 (add-hook 'after-init-hook 'global-company-mode)
 (setq company-idle-delay 0.1)
 (setq company-minimum-prefix-length 1)
-
-;; Company posframe
-(company-posframe-mode 1)
 
 ;; Lispy configuration
 (add-hook 'emacs-lisp-mode-hook (lambda () (lispy-mode 1)))
