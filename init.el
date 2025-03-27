@@ -112,3 +112,24 @@
 (setq user-init-file-timestamp "2025-03-27 13:54:18")
 (setq user-init-file-author "xlisp")
 
+;; ----
+;; 设置光标类型为实心块
+(setq-default cursor-type 'box)
+
+;; 设置光标颜色为亮红色（你可以改成其他颜色）
+(set-cursor-color "#FF0000")
+
+;; 让光标闪烁
+(blink-cursor-mode t)
+
+;; 可选：增加光标宽度（如果是竖线光标的话）
+(setq-default cursor-type '(bar . 3))  ; 数字3表示宽度，可以调整
+
+;;----
+(setq-default cursor-type '(bar . 3))
+(set-cursor-color "#FF0000")  ; 设置醒目的颜色
+;;----
+;; 设置为大块状光标
+(setq-default cursor-type 'box)
+;; 设置光标大小为字符大小的2倍（可以调整这个数值）
+(setq x-stretch-cursor t)
