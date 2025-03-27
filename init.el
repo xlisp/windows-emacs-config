@@ -7,6 +7,7 @@
 (add-to-list 'load-path "~/.emacs.d/packages/multiple-cursors.el")
 (add-to-list 'load-path "~/.emacs.d/packages/projectile")
 (add-to-list 'load-path "~/.emacs.d/packages/yasnippet")
+;;(add-to-list 'load-path "~/.emacs.d/packages/counsel-projectile")
 
 ;; Load packages
 ;;(load "cider")
@@ -17,6 +18,7 @@
 (load "multiple-cursors")
 (load "projectile")
 (load "yasnippet")
+;;(load "counsel-projectile")
 
 ;; CIDER configuration
 (setq cider-repl-display-help-banner nil)
@@ -133,3 +135,16 @@
 (setq-default cursor-type 'box)
 ;; 设置光标大小为字符大小的2倍（可以调整这个数值）
 (setq x-stretch-cursor t)
+
+;; ------ windows alt is meta key -----
+
+;; (global-set-key
+;;  (kbd "C-p")
+;;  (lambda ()
+;;    (interactive)
+;;    (if (string= "~/" default-directory)
+;;        (progn
+;;          (setq default-directory "/")
+;;          (counsel-projectile-find-file))
+;;      (counsel-projectile-find-file))))
+;; 
