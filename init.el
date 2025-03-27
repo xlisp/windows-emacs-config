@@ -32,8 +32,8 @@
 (setq company-minimum-prefix-length 1)
 
 ;; Lispy configuration
-(add-hook 'emacs-lisp-mode-hook (lambda () (lispy-mode 1)))
-(add-hook 'clojure-mode-hook (lambda () (lispy-mode 1)))
+;;(add-hook 'emacs-lisp-mode-hook (lambda () (lispy-mode 1)))
+;;(add-hook 'clojure-mode-hook (lambda () (lispy-mode 1)))
 
 ;; Monokai theme
 (load-theme 'monokai t)
