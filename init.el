@@ -148,3 +148,21 @@
 ;;          (counsel-projectile-find-file))
 ;;      (counsel-projectile-find-file))))
 ;; 
+
+(global-set-key (kbd "M-2") 'set-mark-command)
+(global-set-key (kbd "M-g") 'goto-line)
+
+(global-set-key
+ (kbd "C-c k")
+ (lambda ()
+   (interactive)
+   (let ((old-point (point)))
+
+     (call-interactively #'find-alternate-file)
+     (goto-char  old-point)) ;; 你的习惯就是打开文件编辑一段时间会撤销一下，所以要定时关闭掉
+   )
+ )
+
+(global-set-key (kbd "M->") 'mc/mark-next-like-this)
+(global-set-key (kbd "M-<") 'mc/skip-to-next-like-this)
+
