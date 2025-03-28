@@ -169,3 +169,22 @@
 
 ;; ^J C-q j 替换空格！ =》 M-x  replace-string！
 
+;; ----
+(global-set-key
+ (kbd "C-c C-a")
+ (lambda ()
+   (interactive)
+   (call-interactively #'counsel-projectile-ag)
+   ;; (call-interactively #'ag) ;; 虽然可以捕捉关键词，但是不能read list那种界面
+   ;; (counsel-projectile-ag-at-point) ;; can no work
+   ))
+
+(global-set-key (kbd "C-c m") 'end-of-buffer) ;; C-M-SPC => C-x m 选择单词，py模式不好使！！！经常选错！TODO
+
+;; Delete trailing whitespace on save.
+(add-hook 'before-save-hook 'delete-trailing-whitespace)
+
+(ivy-mode 1) ;; 现在的M-x的列表是ivy的列表: 不能按照历史来排序
+(ivy-prescient-mode 1)
+(counsel-projectile-mode 1)
+
