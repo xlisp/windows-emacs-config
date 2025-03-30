@@ -1,6 +1,6 @@
 (defconst jw-eval-buffer-commands
-  '(("js" . "/usr/local/bin/node")
-    ("rb" . "/usr/bin/ruby")
+  '(("js" . "node") ;; windows use
+    ("rb" . "ruby") ;; windows use
     ("coffee" . "/usr/local/bin/coffee")
     ("drb" . "/usr/local/bin/drb")
     ("erb" . "/usr/local/bin/drb")
@@ -15,23 +15,11 @@
     ("php" . "/usr/bin/php")
     ("pl" . "/usr/bin/perl")
     ("java" . "/usr/bin/javac")
-    ("py" . "/opt/anaconda3/bin/python")
+    ("py" . "python") ;; windows use
     ("ex" . "/usr/local/bin/elixir")
     ("exs" . "/usr/local/bin/elixir")))
 
 (defconst jw-eval-buffer-name "*EVALBUFFER*")
-
-;; M-x my-shell-command-to-eval-buffer 输入 pytest tests/test_planner_agent.py，工作正常
-(defun my-shell-command-to-eval-buffer (command)
-  "Run a shell command and output the result to the *EVALBUFFER* buffer."
-  (interactive "sShell command: ")
-  (let ((output-buffer "*EVALBUFFER*"))
-    ;; 临时写的，为了Emacs快速测试开发py项目
-    (setq default-directory "/Users/clojure/ClackyAIPro/staging-clacky-ai-agent")
-    (shell-command command output-buffer)
-    (with-current-buffer output-buffer
-      (goto-char (point-max))
-      (insert "\n\n"))))
 
 (defun jw-eval-buffer ()
   "Evaluate the current buffer and display the result in a buffer."
