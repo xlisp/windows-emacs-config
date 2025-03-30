@@ -1,5 +1,6 @@
 ;; Add local package directory to load path
 ;;(add-to-list 'load-path "~/.emacs.d/packages/cider")
+(add-to-list 'load-path "~/.emacs.d/packages/elisp")
 (add-to-list 'load-path "~/.emacs.d/packages/clojure-mode")
 (add-to-list 'load-path "~/.emacs.d/packages/company-mode")
 ;;(add-to-list 'load-path "~/.emacs.d/packages/lispy")
@@ -19,6 +20,7 @@
 (load "projectile")
 (load "yasnippet")
 ;;(load "counsel-projectile")
+(require 'jim-eval-buffer)
 
 ;; CIDER configuration
 (setq cider-repl-display-help-banner nil)
@@ -187,4 +189,6 @@
 (ivy-mode 1) ;; 现在的M-x的列表是ivy的列表: 不能按照历史来排序
 (ivy-prescient-mode 1)
 (counsel-projectile-mode 1)
+
+(global-set-key (kbd "C-c v") 'jw-eval-or-clear-buffer)
 
