@@ -192,3 +192,11 @@
 
 (global-set-key (kbd "C-c v") 'jw-eval-or-clear-buffer)
 
+(defvar mc-forward-tri " ")
+
+(global-set-key
+ (kbd "C-c 9")
+ (lambda ()
+   (interactive)
+   (re-search-forward mc-forward-tri nil t)))
+
