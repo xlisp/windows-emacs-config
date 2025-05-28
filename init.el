@@ -1,5 +1,6 @@
 ;; Add local package directory to load path
 ;;(add-to-list 'load-path "~/.emacs.d/packages/cider")
+(add-to-list 'load-path "~/.emacs.d/packages")
 (add-to-list 'load-path "~/.emacs.d/packages/elisp")
 (add-to-list 'load-path "~/.emacs.d/packages/clojure-mode")
 (add-to-list 'load-path "~/.emacs.d/packages/company-mode")
@@ -19,6 +20,7 @@
 (load "multiple-cursors")
 (load "projectile")
 (load "yasnippet")
+(load "ripgrep")
 ;;(load "counsel-projectile")
 (require 'jim-eval-buffer)
 
@@ -199,4 +201,27 @@
  (lambda ()
    (interactive)
    (re-search-forward mc-forward-tri nil t)))
+
+
+;; -----
+;; 同时修改多个文件的某个关键词
+;;### 1. projectile-grep搜索关键词
+;;### 2. wgrep-change-to-wgrep-mode
+;;### 3. mutil-cursors 选择多个 C->,然后修改
+;;### 4. C-c C-c
+;; ## 5.点击关闭Emacs就会提示你保存文件
+(defun gag ()
+  "1. 查询关键词的列表出来"
+  (interactive)
+  ;; (projectile-grep)
+  ;; (projectile-ag)
+  (call-interactively #'projectile-ripgrep)) ;; 交互调用一个命令
+(defun gsub ()
+  "2. 进入wgrep模式,多文件编辑 => M->多个关键词同时修改"
+  (interactive)
+  (wgrep-change-to-wgrep-mode))
+(defun gsave ()
+  "3. 保存多个被修改的文件"
+  (interactive)
+  (call-interactively #'save-some-buffers))
 
