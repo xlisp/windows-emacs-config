@@ -62,20 +62,20 @@
 (when (window-system)
   ;; Set default window size
   (set-frame-size (selected-frame) 120 40)
-  
+
   ;; Set default font and size
   (set-face-attribute 'default nil :height 110)
-  
+
   ;; Enable line numbers
   (global-display-line-numbers-mode)
-  
+
   ;; Show matching parentheses
   (show-paren-mode 1)
-  
+
   ;; Remove toolbar and scrollbar
   (tool-bar-mode -1)
   (scroll-bar-mode -1)
-  
+
   ;; Enable winner mode for window configuration undo/redo
   (winner-mode 1))
 
@@ -151,7 +151,7 @@
 ;;          (setq default-directory "/")
 ;;          (counsel-projectile-find-file))
 ;;      (counsel-projectile-find-file))))
-;; 
+;;
 
 (global-set-key (kbd "M-2") 'set-mark-command)
 (global-set-key (kbd "M-g") 'goto-line)
@@ -167,7 +167,7 @@
    )
  )
 
-;; ==> windows is ctrl-> 111 
+;; ==> windows is ctrl-> 111
 (global-set-key (kbd "M->") 'mc/mark-next-like-this)
 (global-set-key (kbd "M-<") 'mc/skip-to-next-like-this)
 
@@ -225,3 +225,12 @@
   (interactive)
   (call-interactively #'save-some-buffers))
 
+(defun match-paren (arg)
+  "Go to the matching paren if on a paren; otherwise insert %."
+  (interactive "p")
+  (cond
+   ((looking-at "\\s\(") (forward-list 1) (backward-char 1))
+   ((looking-at "\\s\)") (forward-char 1) (backward-list 1))
+   (t (self-insert-command (or arg 1)))))
+
+(global-set-key "%" 'match-paren)
